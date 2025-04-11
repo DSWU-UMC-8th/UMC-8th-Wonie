@@ -1,9 +1,16 @@
 import UseForm from "../hooks/UseForm";
-import { USerSigninInformation, validateSignin } from "../utils/validate";
+import { UserSigninInformation, validateSignin } from "../utils/validate";
+import { postSignin } from "../apis/auth";
+import { ResponseSigninDto } from "../types/auth";
+import { LOCAL_STORAGE_KEY } from "../constants/key";
+import useLocalStorage from "../hooks/useLocalStorage";
+import { useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
+  const { setItem } = useLocalStorage();
+  const navigate = useNavigate();
   const { values, errors, touched, getInputProps } =
-    UseForm<USerSigninInformation>({
+    UseForm<UserSigninInformation>({
       initialValue: {
         email: "",
         password: "",
@@ -11,53 +18,83 @@ const LoginPage = () => {
       validate: validateSignin,
     });
 
-  const handleSubmit = () => {
-    console.log(values);
-    // await axios.post("url", values);
+  const handleSubmit = async () => {
+    try {
+      const response: ResponseSigninDto = await postSignin(values);
+      setItem(LOCAL_STORAGE_KEY.accessToken, response.data.accessToken);
+      alert("로그인 성공!");
+      console.log(response);
+      navigate("/mypage");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        alert(error.message);
+        console.error(error);
+      } else {
+        alert("알 수 없는 오류가 발생했습니다.");
+        console.error("Unknown error:", error);
+      }
+    }
   };
 
-  //오류가 하나라도 있거나, 입력값이 비어있으면 버튼을 비활성화
-  const idDisabled =
-    Object.values(errors || {}).some((error) => error.length > 0) || //오류가 있으면 true
-    Object.values(values).some((value) => value === ""); //입력값이 비어있으면 true
+  const isDisabled =
+    Object.values(errors || {}).some((error) => error.length > 0) ||
+    Object.values(values).some((value) => value === "");
 
   return (
-    <div className="flex flex-col items-center justify-center h-full gap-4">
-      <div className="flex flex-col gap-3">
-        <input
-          {...getInputProps("email")}
-          name="email"
-          type={"email"}
-          className={`border border-[#ccc] w-[300px] p-[10px] focus:border-[#807bff] rounded-sm
-  ${
-    errors?.email && touched?.email
-      ? "border-red-500 bg-red-200"
-      : "border-gray-300"
-  }`}
-          placeholder={"이메일"}
-        />
-        {errors?.email && touched?.email && (
-          <div className="text-red-500 text-sm">{errors.email}</div>
-        )}
-        <input
-          {...getInputProps("password")}
-          type={"password"}
-          className={`border border-[#ccc] w-[300px] p-[10px] focus:border-[#807bff] rounded-sm
-            ${
-              errors?.password && touched?.password
-                ? "border-red-500 bg-red-200"
+    <div className="min-h-screen bg-black flex items-center justify-center px-4">
+      <div className="w-full max-w-sm space-y-6 text-center">
+        <h2 className="text-2xl font-bold text-white">로그인</h2>
+
+        <button className="flex items-center justify-center w-full border border-gray-300 rounded py-2 hover:bg-gray-300 transition text-gray-300 hover:text-black">
+          <img
+            src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1024px-Google_%22G%22_logo.svg.png"
+            alt="Google"
+            className="w-5 h-5 mr-2"
+          />
+          <span className="text-sm">구글 로그인</span>
+        </button>
+
+        <div className="flex items-center justify-between text-gray-400 text-sm">
+          <hr className="flex-1 border-gray-200" />
+          <span className="px-2">OR</span>
+          <hr className="flex-1 border-gray-200" />
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <input
+            {...getInputProps("email")}
+            type="email"
+            placeholder="이메일"
+            className={`p-2 border rounded w-full text-sm text-gray-300 ${
+              errors?.email && touched?.email
+                ? "border-red-500"
                 : "border-gray-300"
             }`}
-          placeholder={"비밀번호"}
-        />
-        {errors?.password && touched?.password && (
-          <div className="text-red-500 text-sm">{errors.password}</div>
-        )}
+          />
+          {errors?.email && touched?.email && (
+            <p className="text-red-500 text-sm text-left">{errors.email}</p>
+          )}
+
+          <input
+            {...getInputProps("password")}
+            type="password"
+            placeholder="비밀번호"
+            className={`p-2 border rounded w-full text-sm text-gray-300 ${
+              errors?.password && touched?.password
+                ? "border-red-500"
+                : "border-gray-300"
+            }`}
+          />
+          {errors?.password && touched?.password && (
+            <p className="text-red-500 text-sm text-left">{errors.password}</p>
+          )}
+        </div>
+
         <button
           type="button"
           onClick={handleSubmit}
-          disabled={idDisabled}
-          className="w-full bg-blue-600 text-white py-3 rounded-md text-lg font-medium hover:bg-blue-700 transition-colors cursor-pointer disabled:bg-gray-300"
+          disabled={isDisabled}
+          className="w-full bg-blue-600 text-white py-2 rounded cursor-pointer text-sm font-medium transition disabled:bg-gray-300 disabled:cursor-not-allowed"
         >
           로그인
         </button>

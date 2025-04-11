@@ -1,0 +1,24 @@
+import { NavLink } from "react-router-dom";
+
+const LINKS = [
+  { to: "/", label: "홈" },
+  { to: "/signup", label: "회원가입" },
+];
+
+export const Navbar = () => {
+  return (
+    <div className="flex gap-3 p-4">
+      {LINKS.map(({ to, label }) => (
+        <NavLink
+          key={to}
+          to={to}
+          className={({ isActive }) => {
+            return isActive ? "text-blue-600 font-bold" : "text-white";
+          }}
+        >
+          {label}
+        </NavLink>
+      ))}
+    </div>
+  );
+};
