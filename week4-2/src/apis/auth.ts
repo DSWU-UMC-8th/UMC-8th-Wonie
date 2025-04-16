@@ -1,4 +1,5 @@
-import axiosInstance from "./axios";
+import { axiosInstance } from "../apis/axios";
+
 import {
   RequestSigninDto,
   RequestSignupDto,
