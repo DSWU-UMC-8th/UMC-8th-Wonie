@@ -6,35 +6,44 @@ import HomeLayout from "./layouts/HomeLayout";
 import HomePage from "./pages/HomePage";
 import SignupPage from "./pages/SignupPage";
 import MyPage from "./pages/MyPage";
+import { AuthProvider } from "./context/AuthContext";
+import ProtectedLayout from "./layouts/ProtectedLayout";
 
-const router = createBrowserRouter([
+const publicRoutes = [
   {
     path: "/",
     element: <HomeLayout />,
+    errorElement: <LoginPage />,
+    children: [
+      { index: true, element: <HomePage /> },
+      { path: "login", element: <LoginPage /> },
+      { path: "signup", element: <SignupPage /> },
+    ],
+  },
+];
+
+const protectedRoutes = [
+  {
+    path: "/",
+    element: <ProtectedLayout />,
     errorElement: <NotFoundPage />,
     children: [
-      {
-        index: true,
-        element: <HomePage />,
-      },
-      {
-        path: "login",
-        element: <LoginPage />,
-      },
-      {
-        path: "signup",
-        element: <SignupPage />,
-      },
       {
         path: "mypage",
         element: <MyPage />,
       },
     ],
   },
-]);
+];
+
+const router = createBrowserRouter([...publicRoutes, ...protectedRoutes]);
 
 function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
+  );
 }
 
 export default App;
