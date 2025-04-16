@@ -35,7 +35,6 @@ const MyPage = () => {
 
   return (
     <div className="h-[100vh]">
-      <Navbar />
       <h1 className="text-white">{data?.name}님 환영합니다.</h1>
       <img src={data?.avatar || "/vite.svg"} alt="프로필 이미지" />
 
