@@ -1,1 +1,8 @@
 @import "tailwindcss";
+#root {
+  overflow-y: hidden;
+  margin: 0 auto;
+  padding: 1%;
+  text-align: center;
+  background-color: black;
+}

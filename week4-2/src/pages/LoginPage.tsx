@@ -1,14 +1,13 @@
+import { useNavigate } from "react-router-dom";
 import UseForm from "../hooks/UseForm";
 import { UserSigninInformation, validateSignin } from "../utils/validate";
-import { postSignin } from "../apis/auth";
-import { ResponseSigninDto } from "../types/auth";
-import { LOCAL_STORAGE_KEY } from "../constants/key";
-import useLocalStorage from "../hooks/useLocalStorage";
-import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { useEffect } from "react";
 
 const LoginPage = () => {
-  const { setItem } = useLocalStorage();
+  const { login, accessToken } = useAuth();
   const navigate = useNavigate();
+
   const { values, errors, touched, getInputProps } =
     UseForm<UserSigninInformation>({
       initialValue: {
@@ -18,16 +17,19 @@ const LoginPage = () => {
       validate: validateSignin,
     });
 
+  useEffect(() => {
+    if (accessToken) {
+      navigate("/mypage");
+    }
+  }, [accessToken]);
+
   const handleSubmit = async () => {
     try {
-      const response: ResponseSigninDto = await postSignin(values);
-      setItem(LOCAL_STORAGE_KEY.accessToken, response.data.accessToken);
-      alert("로그인 성공!");
-      console.log(response);
+      await login(values);
       navigate("/mypage");
     } catch (error: unknown) {
       if (error instanceof Error) {
-        alert(error.message);
+        alert("로그인 실패");
         console.error(error);
       } else {
         alert("알 수 없는 오류가 발생했습니다.");
@@ -40,12 +42,20 @@ const LoginPage = () => {
     Object.values(errors || {}).some((error) => error.length > 0) ||
     Object.values(values).some((value) => value === "");
 
+  const handleGoogleLogin = () => {
+    window.location.href =
+      import.meta.env.VITE_SERVER_API_URL + "/v1/auth/google/login";
+  };
+
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center px-4">
+    <div className="bg-black flex items-center justify-center px-4 py-[5%]">
       <div className="w-full max-w-sm space-y-6 text-center">
         <h2 className="text-2xl font-bold text-white">로그인</h2>
 
-        <button className="flex items-center justify-center w-full border border-gray-300 rounded py-2 hover:bg-gray-300 transition text-gray-300 hover:text-black">
+        <button
+          className="flex items-center justify-center w-full border border-gray-300 rounded py-2 hover:bg-gray-300 transition text-gray-300 hover:text-black cursor-pointer"
+          onClick={handleGoogleLogin}
+        >
           <img
             src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1024px-Google_%22G%22_logo.svg.png"
             alt="Google"

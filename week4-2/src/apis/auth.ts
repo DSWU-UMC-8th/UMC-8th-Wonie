@@ -1,4 +1,5 @@
-import axiosInstance from "./axios";
+import { axiosInstance } from "../apis/axios";
+
 import {
   RequestSigninDto,
   RequestSignupDto,
@@ -26,5 +27,11 @@ export const postSignin = async (
 // 내 정보 조회 API
 export const getMyInfo = async (): Promise<ResponseMyInfoDto> => {
   const { data } = await axiosInstance.get("/v1/users/me");
+  return data;
+};
+
+export const postLogout = async () => {
+  const { data } = await axiosInstance.post("/v1/auth/signout");
+
   return data;
 };
