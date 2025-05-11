@@ -19,7 +19,7 @@ const LoginPage = () => {
 
   useEffect(() => {
     if (accessToken) {
-      navigate("/mypage");
+      navigate("/");
     }
   }, [accessToken]);
 
