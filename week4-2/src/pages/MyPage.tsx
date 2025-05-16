@@ -3,7 +3,8 @@ import { useAuth } from "../context/AuthContext";
 import { getMyInfo } from "../apis/auth";
 import { ResponseMyInfoDto } from "../types/auth";
 import { useNavigate } from "react-router-dom";
-import Navbar from "./Navbar";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 
 const MyPage = () => {
   const [data, setData] = useState<ResponseMyInfoDto["data"]>({
@@ -34,16 +35,24 @@ const MyPage = () => {
   };
 
   return (
-    <div className="h-[100vh]">
-      <h1 className="text-white">{data?.name}님 환영합니다.</h1>
-      <img src={data?.avatar || "/vite.svg"} alt="프로필 이미지" />
-
-      <button
-        className="cursor-pointer bg-blue-600 rounded-sm p-3 text-white hover:scale-90"
-        onClick={handleLogout}
-      >
-        로그아웃
-      </button>
+    <div className="h-screen bg-black text-white">
+      <Navbar />
+      <div className="flex flex-col items-center gap-y-4 mt-10 h-[63%]">
+        <img
+          src={data?.avatar || "/vite.svg"}
+          alt="프로필 이미지"
+          className="w-32 h-32 rounded-full object-cover border"
+        />
+        <h1 className="text-2xl font-semibold">{data?.name}님 환영합니다.</h1>
+        <p className="text-lg">{data?.email}</p>
+        <button
+          className="bg-blue-600 px-6 py-2 rounded hover:bg-blue-700 transition-all cursor-pointer"
+          onClick={handleLogout}
+        >
+          로그아웃
+        </button>
+      </div>
+      <Footer />
     </div>
   );
 };
