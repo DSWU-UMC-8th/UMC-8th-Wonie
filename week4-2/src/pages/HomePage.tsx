@@ -1,66 +1,13 @@
-// import LpCard from "../components/LpCard/LpCard.tsx";
-// import LpCardSkeletonList from "../components/LpCard/LpCardSkeletonList.tsx";
-// import { PAGINATION_ORDER } from "../enums/commons.ts";
-// import useGetInfiniteLpList from "../hooks/queries/useGetInfiniteLpList.ts";
-// import { useEffect, useState } from "react";
-// import { useInView } from "react-intersection-observer";
-
-// const HomePage = () => {
-//   const [search, setSearch] = useState("");
-//   // const { data, isPending, isError } = useGetLpList({ search, limit: 50 });
-//   const {
-//     data: lps,
-//     isFetching,
-//     hasNextPage,
-//     fetchNextPage,
-//     isError,
-//     isPending,
-//   } = useGetInfiniteLpList(10, search, PAGINATION_ORDER.desc);
-
-//   const { ref, inView } = useInView({
-//     threshold: 0,
-//   });
-
-//   useEffect(() => {
-//     if (inView) {
-//       !isFetching && hasNextPage && fetchNextPage();
-//     }
-//   }, [inView, isFetching, hasNextPage, fetchNextPage]);
-
-//   if (isError) {
-//     return <div className="mt-20">Error...</div>;
-//   }
-
-//   return (
-//     <div className="container mx-auto px-4 py-6">
-//       <input value={search} onChange={(e) => setSearch(e.target.value)} />
-
-//       <div className="mt-20 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-//         {isPending && <LpCardSkeletonList count={20} />}
-//         {lps?.pages
-//           ?.map((page) => page.data.data)
-//           ?.flat()
-//           ?.map((lp) => (
-//             <LpCard key={lp.id} lp={lp} />
-//           ))}
-//         {isFetching && <LpCardSkeletonList count={20} />}
-//       </div>
-//       <div ref={ref} className="h-2"></div>
-//     </div>
-//   );
-// };
-
-// export default HomePage;
-
 import { useEffect, useState } from "react";
 import { PAGINATION_ORDER } from "../enums/commons";
 import useGetInfiniteLpList from "../hooks/queries/useGetInfiniteLpList";
 import { useInView } from "react-intersection-observer";
 import LpCard from "../components/LpCard/LpCard";
 import LpCardSkeletonList from "../components/LpCard/LpCardSkeletonList";
-import Footer from "../components/Footer";
+import LPModal from "../components/LPModal";
 
 const HomePage = () => {
+  const [open, setOpen] = useState(false);
   const [order, setOrder] = useState<PAGINATION_ORDER>(PAGINATION_ORDER.desc);
   // const {data, isPending, isError } = useGetLpList({order});
   const [search, setSearch] = useState("");
@@ -71,7 +18,7 @@ const HomePage = () => {
     isPending,
     fetchNextPage,
     isError,
-  } = useGetInfiniteLpList(3, search, PAGINATION_ORDER.desc);
+  } = useGetInfiniteLpList(3, search, order);
 
   const { ref, inView } = useInView({
     threshold: 0,
@@ -142,6 +89,16 @@ const HomePage = () => {
         {isFetching && <LpCardSkeletonList count={20} />}
       </div>
       <div ref={ref} className="h-2"></div>
+
+      {/* ✅ LP 작성 모달 버튼 */}
+      {open && <LPModal onClose={() => setOpen(false)} />}
+
+      <button
+        onClick={() => setOpen(true)}
+        className="fixed bottom-8 right-8 bg-pink-500 w-14 h-14 rounded-full text-white text-3xl shadow-lg hover:bg-pink-600 z-50"
+      >
+        +
+      </button>
     </div>
   );
 };

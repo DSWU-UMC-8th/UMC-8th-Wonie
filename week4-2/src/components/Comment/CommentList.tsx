@@ -32,7 +32,7 @@ const CommentList = ({ lpId }: { lpId: number }) => {
     <div className="p-6 w-full max-w-2xl mx-auto rounded-md bg-[#1e1e1e] text-white">
       <h4 className="text-m mb-3">댓글</h4>
 
-      <CommentForm />
+      <CommentForm lpId={lpId} />
 
       <div className="flex gap-2 my-3 mt-5 justify-end text-sm">
         <button
@@ -55,7 +55,7 @@ const CommentList = ({ lpId }: { lpId: number }) => {
 
       <div className="rounded-md bg-[#1e1e1e]">
         {comments.map((comment) => (
-          <CommentItem key={comment.id} comment={comment} />
+          <CommentItem key={comment.id} comment={comment} lpId={lpId} />
         ))}
 
         {isFetching && <CommentSkeletonList count={5} />}
