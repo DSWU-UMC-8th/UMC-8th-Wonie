@@ -3,9 +3,10 @@ import UseForm from "../hooks/UseForm";
 import { UserSigninInformation, validateSignin } from "../utils/validate";
 import { useAuth } from "../context/AuthContext";
 import { useEffect } from "react";
+import useLogin from "../hooks/mutation/useLogin"; // ✅ 추가
 
 const LoginPage = () => {
-  const { login, accessToken } = useAuth();
+  const { accessToken } = useAuth();
   const navigate = useNavigate();
 
   const { values, errors, touched, getInputProps } =
@@ -17,25 +18,29 @@ const LoginPage = () => {
       validate: validateSignin,
     });
 
+  const loginMutation = useLogin(); // ✅ useMutation 훅 사용
+
   useEffect(() => {
     if (accessToken) {
       navigate("/");
     }
   }, [accessToken]);
 
-  const handleSubmit = async () => {
-    try {
-      await login(values);
-      navigate("/mypage");
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        alert("로그인 실패");
-        console.error(error);
-      } else {
-        alert("알 수 없는 오류가 발생했습니다.");
-        console.error("Unknown error:", error);
-      }
-    }
+  const handleSubmit = () => {
+    loginMutation.mutate(values, {
+      onSuccess: () => {
+        navigate("/mypage");
+      },
+      onError: (error) => {
+        if (error instanceof Error) {
+          alert("로그인 실패");
+          console.error(error);
+        } else {
+          alert("알 수 없는 오류가 발생했습니다.");
+          console.error("Unknown error:", error);
+        }
+      },
+    });
   };
 
   const isDisabled =
@@ -103,10 +108,10 @@ const LoginPage = () => {
         <button
           type="button"
           onClick={handleSubmit}
-          disabled={isDisabled}
+          disabled={isDisabled || loginMutation.isPending}
           className="w-full bg-blue-600 text-white py-2 rounded cursor-pointer text-sm font-medium transition disabled:bg-gray-300 disabled:cursor-not-allowed"
         >
-          로그인
+          {loginMutation.isPending ? "로그인 중..." : "로그인"}
         </button>
       </div>
     </div>
