@@ -1,5 +1,7 @@
 import { axiosInstance } from "../apis/axios";
 
+import { LOCAL_STORAGE_KEY } from "../constants/key";
+
 import {
   RequestSigninDto,
   RequestSignupDto,
@@ -34,4 +36,42 @@ export const postLogout = async () => {
   const { data } = await axiosInstance.post("/v1/auth/signout");
 
   return data;
+};
+
+export const updateMyInfo = async ({
+  name,
+  bio,
+  avatar,
+}: {
+  name: string;
+  bio?: string;
+  avatar?: string;
+}) => {
+  const { data } = await axiosInstance.patch("/v1/users", {
+    name,
+    bio,
+    avatar,
+  });
+  return data;
+};
+
+export const postWithdraw = async () => {
+  const { data } = await axiosInstance.delete("/v1/users");
+  return data;
+};
+
+export const patchMyInfo = async ({
+  name,
+  bio,
+  avatar,
+}: {
+  name: string;
+  bio: string;
+  avatar: string;
+}) => {
+  return axiosInstance.patch("/v1/users/me", {
+    name,
+    bio,
+    avatar,
+  });
 };

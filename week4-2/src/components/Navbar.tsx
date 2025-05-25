@@ -1,18 +1,43 @@
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useEffect } from "react";
+import { getMyInfo } from "../apis/auth";
+import useLogout from "../hooks/mutation/useLogout";
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const { accessToken, logout } = useAuth();
+  const { accessToken, user, setUser } = useAuth();
 
-  const handleLogout = async () => {
-    await logout();
-    window.location.href = "/";
+  const logoutMutation = useLogout();
+
+  const handleLogout = () => {
+    logoutMutation.mutate();
   };
 
-  const handleMypage = async () => {
-    window.location.href = "/mypage";
+  const handleMypage = () => {
+    navigate("/mypage");
   };
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await getMyInfo();
+        setUser(res.data);
+
+        // localStorage에도 저장
+        localStorage.setItem("user", JSON.stringify(res.data));
+      } catch (error) {
+        console.error("사용자 정보 불러오기 실패", error);
+      }
+    };
+
+    const savedUser = localStorage.getItem("user");
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
+    } else if (accessToken) {
+      fetchUser();
+    }
+  }, [accessToken, setUser]);
 
   return (
     <nav className="flex justify-between items-center px-6 py-4 shadow-2xs bg-black/90 p-0">
@@ -23,9 +48,12 @@ const Navbar = () => {
         App
       </div>
 
-      <div className="flex gap-4">
+      <div className="flex items-center gap-4">
         {accessToken ? (
           <>
+            <span className="text-sm text-white">
+              {user?.name ?? "사용자"}님 반갑습니다
+            </span>
             <button
               onClick={handleMypage}
               className="text-sm text-white hover:text-gray-300 cursor-pointer"
@@ -35,8 +63,9 @@ const Navbar = () => {
             <button
               onClick={handleLogout}
               className="text-sm text-white hover:text-gray-300 cursor-pointer"
+              disabled={logoutMutation.isPending}
             >
-              로그아웃
+              {logoutMutation.isPending ? "로그아웃 중..." : "로그아웃"}
             </button>
           </>
         ) : (
